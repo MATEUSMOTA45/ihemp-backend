@@ -4,6 +4,13 @@ API REST desenvolvida para o projeto IHEMP, utilizando Node.js, Express, MongoDB
 
 O objetivo do projeto é demonstrar a construção de um backend completo com autenticação, autorização por perfil de usuário, relacionamento entre entidades e controle de pedidos.
 
+## API online
+
+A API está disponível em:
+
+https://ihemp-backend.onrender.com
+
+
 ## Tecnologias utilizadas
 
 - Node.js
