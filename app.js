@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
     res.json({
-        mensagem: "API IHEMP está no ar 🚀"
+        mensagem: "API IHEMP está no ar via Docker 🚀"
     });
 });
 
