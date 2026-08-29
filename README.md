@@ -1,40 +1,57 @@
 # IHEMP Backend
 
-API REST desenvolvida para o projeto IHEMP, utilizando Node.js, Express, MongoDB e autenticação com JWT.
+![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-API-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Authentication-000000?logo=jsonwebtokens&logoColor=white)
+![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?logo=render&logoColor=black)
 
-O objetivo do projeto é demonstrar a construção de um backend completo com autenticação, autorização por perfil de usuário, relacionamento entre entidades e controle de pedidos.
+API REST desenvolvida para o projeto **IHEMP**, utilizando Node.js, Express, MongoDB e autenticação com JWT.
+
+O projeto foi criado com foco na construção de um backend organizado e funcional, utilizando autenticação, autorização por perfil de usuário, relacionamentos entre entidades, controle de estoque e gerenciamento de pedidos.
 
 ## API online
 
-A API está disponível em:
+A API está publicada no Render:
 
 https://ihemp-backend.onrender.com
 
+Exemplo de rota pública:
+
+```text
+GET https://ihemp-backend.onrender.com/api/produtos
+```
+
+> O serviço utiliza uma instância gratuita do Render, portanto a primeira requisição pode levar alguns segundos caso o servidor esteja em modo de espera.
 
 ## Tecnologias utilizadas
 
 - Node.js
 - Express
-- MongoDB
+- MongoDB Atlas
 - Mongoose
-- JWT
+- JSON Web Token (JWT)
 - bcryptjs
 - dotenv
 - CORS
 - Nodemon
+- Git
+- GitHub
+- Render
 
 ## Funcionalidades
 
 ### Usuários
 
 - Cadastro de usuários
-- Senhas criptografadas com bcrypt
-- Login com JWT
-- Perfil do usuário autenticado
-- Controle de acesso por perfil
+- Criptografia de senhas com bcrypt
+- Login com geração de JWT
+- Consulta do perfil do usuário autenticado
 - Perfis `cliente` e `admin`
-- Promoção de usuário para administrador
+- Controle de acesso baseado em perfil
+- Promoção de usuários para administrador
 - Rotas protegidas por middleware
+- Cadastro público sempre definido como cliente
 
 ### Lojas
 
@@ -43,7 +60,7 @@ https://ihemp-backend.onrender.com
 - Buscar loja por ID
 - Atualizar loja
 - Excluir loja
-- Criação, atualização e exclusão restritas a administradores
+- Operações de criação, atualização e exclusão restritas a administradores
 
 ### Produtos
 
@@ -54,50 +71,243 @@ https://ihemp-backend.onrender.com
 - Excluir produto
 - Relacionamento entre produto e loja
 - Controle de estoque
+- Operações administrativas protegidas por JWT
 
 ### Pedidos
 
-- Criar pedido com múltiplos produtos
+- Criação de pedidos com múltiplos produtos
+- Pedido vinculado automaticamente ao usuário autenticado
 - Cálculo automático do valor total
+- Preço obtido diretamente do banco de dados
 - Validação de estoque
-- Baixa automática do estoque
-- Validação da loja dos produtos
-- Pedido vinculado ao usuário autenticado
+- Baixa automática do estoque após a criação do pedido
+- Validação de que os produtos pertencem à loja informada
 - Listagem dos próprios pedidos
-- Controle de acesso por dono do pedido
+- Consulta de pedido pelo proprietário ou administrador
 - Atualização de status
-- Controle de permissões para administradores
+- Controle de permissões administrativas
+
+## Segurança
+
+A API possui mecanismos básicos de segurança e autorização:
+
+- Senhas armazenadas utilizando hash com bcrypt
+- Autenticação por JWT
+- Tokens com tempo de expiração
+- Middleware de autenticação
+- Middleware de autorização administrativa
+- Proteção de rotas sensíveis
+- Validação de ObjectId do MongoDB
+- Senhas removidas das respostas da API
+- Credenciais armazenadas em variáveis de ambiente
+- `.env` ignorado pelo Git
+- Tratamento de rotas inexistentes com resposta `404`
+
+## Arquitetura
+
+O projeto utiliza uma organização baseada em separação de responsabilidades:
+
+```text
+Request
+   ↓
+Routes
+   ↓
+Middlewares
+   ↓
+Controllers
+   ↓
+Models
+   ↓
+MongoDB Atlas
+```
 
 ## Estrutura do projeto
 
-    text
+```text
 backend/
 ├── controllers/
-│       lojaController.js
-│       pedidoController.js
-│       produtoController.js
-│       usuarioController.js
+│   ├── lojaController.js
+│   ├── pedidoController.js
+│   ├── produtoController.js
+│   └── usuarioController.js
 │
 ├── middleware/
-│       adminMiddleware.js
-│       authMiddleware.js
-│       validarObjectId.js
+│   ├── adminMiddleware.js
+│   ├── authMiddleware.js
+│   └── validarObjectId.js
 │
 ├── models/
-│       Loja.js
-│       Pedido.js
-│       Produto.js
-│       Usuario.js
+│   ├── Loja.js
+│   ├── Pedido.js
+│   ├── Produto.js
+│   └── Usuario.js
 │
 ├── routes/
-│       lojaRoutes.js
-│       pedidoRoutes.js
-│       produtoRoutes.js
-│       usuarioRoutes.js
+│   ├── lojaRoutes.js
+│   ├── pedidoRoutes.js
+│   ├── produtoRoutes.js
+│   └── usuarioRoutes.js
 │
 ├── .env.example
 ├── .gitignore
 ├── app.js
 ├── server.js
 ├── package.json
+├── package-lock.json
 └── README.md
+```
+
+## Principais rotas
+
+### Usuários
+
+| Método | Rota | Acesso |
+|---|---|---|
+| POST | `/api/usuarios` | Público |
+| POST | `/api/usuarios/login` | Público |
+| GET | `/api/usuarios/perfil/me` | Autenticado |
+| GET | `/api/usuarios` | Admin |
+| GET | `/api/usuarios/:id` | Autenticado |
+| PUT | `/api/usuarios/:id/admin` | Admin |
+
+### Lojas
+
+| Método | Rota | Acesso |
+|---|---|---|
+| GET | `/api/lojas` | Público |
+| GET | `/api/lojas/:id` | Público |
+| POST | `/api/lojas` | Admin |
+| PUT | `/api/lojas/:id` | Admin |
+| DELETE | `/api/lojas/:id` | Admin |
+
+### Produtos
+
+| Método | Rota | Acesso |
+|---|---|---|
+| GET | `/api/produtos` | Público |
+| GET | `/api/produtos/:id` | Público |
+| POST | `/api/produtos` | Admin |
+| PUT | `/api/produtos/:id` | Admin |
+| DELETE | `/api/produtos/:id` | Admin |
+
+### Pedidos
+
+| Método | Rota | Acesso |
+|---|---|---|
+| POST | `/api/pedidos` | Autenticado |
+| GET | `/api/pedidos/meus` | Autenticado |
+| GET | `/api/pedidos` | Admin |
+| GET | `/api/pedidos/:id` | Proprietário/Admin |
+| PUT | `/api/pedidos/:id/status` | Admin |
+| DELETE | `/api/pedidos/:id` | Admin |
+
+## Autenticação
+
+As rotas protegidas utilizam JWT.
+
+Depois de realizar o login, envie o token no cabeçalho:
+
+```text
+Authorization: Bearer SEU_TOKEN
+```
+
+Exemplo de login:
+
+```json
+{
+  "email": "usuario@exemplo.com",
+  "senha": "123456"
+}
+```
+
+## Status dos pedidos
+
+Os pedidos podem assumir os seguintes estados:
+
+```text
+pendente
+confirmado
+preparando
+enviado
+entregue
+cancelado
+```
+
+## Como executar localmente
+
+Clone o repositório:
+
+```bash
+git clone https://github.com/MATEUSMOTA45/ihemp-backend.git
+```
+
+Entre no projeto:
+
+```bash
+cd ihemp-backend
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Crie um arquivo `.env` baseado no `.env.example`:
+
+```env
+PORT=5000
+MONGODB_URI=sua_string_do_mongodb
+JWT_SECRET=sua_chave_secreta
+```
+
+Inicie em desenvolvimento:
+
+```bash
+npm run dev
+```
+
+Ou:
+
+```bash
+npm start
+```
+
+A aplicação estará disponível localmente em:
+
+```text
+http://localhost:5000
+```
+
+## Testes
+
+As rotas da API foram testadas manualmente utilizando o Postman, incluindo:
+
+- autenticação
+- autorização
+- CRUD de lojas
+- CRUD de produtos
+- gerenciamento de pedidos
+- controle de estoque
+- validação de permissões
+- validação de ObjectId
+- tratamento de erros
+
+## Próximas melhorias
+
+- Documentação com Swagger / OpenAPI
+- Testes automatizados
+- Transações no MongoDB para operações de pedido e estoque
+- Paginação e filtros
+- Upload de imagens
+- Recuperação de senha
+- Frontend em React
+- Dashboard administrativo
+
+## Autor
+
+**Mateus Mota**
+
+Desenvolvedor Full Stack Júnior
+
+GitHub: https://github.com/MATEUSMOTA45
