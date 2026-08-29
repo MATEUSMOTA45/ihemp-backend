@@ -14,12 +14,12 @@ O projeto foi criado com foco na construção de um backend organizado e funcion
 
 A API está publicada no Render:
 
-https://ihemp-backend.onrender.com
+https://ihemp-backend-docker.onrender.com
 
 Exemplo de rota pública:
 
 ```text
-GET https://ihemp-backend.onrender.com/api/produtos
+GET https://ihemp-backend-docker.onrender.com/api/produtos
 ```
 
 > O serviço utiliza uma instância gratuita do Render, portanto a primeira requisição pode levar alguns segundos caso o servidor esteja em modo de espera.
@@ -37,6 +37,7 @@ GET https://ihemp-backend.onrender.com/api/produtos
 - Nodemon
 - Git
 - GitHub
+- Docker
 - Render
 
 ## Funcionalidades
@@ -105,8 +106,6 @@ A API possui mecanismos básicos de segurança e autorização:
 
 ## Arquitetura
 
-O projeto utiliza uma organização baseada em separação de responsabilidades:
-
 ```text
 Request
    ↓
@@ -148,8 +147,10 @@ backend/
 │   ├── produtoRoutes.js
 │   └── usuarioRoutes.js
 │
+├── .dockerignore
 ├── .env.example
 ├── .gitignore
+├── Dockerfile
 ├── app.js
 ├── server.js
 ├── package.json
@@ -222,8 +223,6 @@ Exemplo de login:
 
 ## Status dos pedidos
 
-Os pedidos podem assumir os seguintes estados:
-
 ```text
 pendente
 confirmado
@@ -278,6 +277,56 @@ A aplicação estará disponível localmente em:
 ```text
 http://localhost:5000
 ```
+
+## Docker
+
+O backend também pode ser executado utilizando Docker.
+
+### Criar a imagem
+
+```bash
+docker build -t ihemp-backend .
+```
+
+### Executar o container
+
+```bash
+docker run --name ihemp-backend-container --env-file .env -p 5000:5000 ihemp-backend
+```
+
+### Comandos úteis
+
+```bash
+docker ps
+docker ps -a
+docker stop ihemp-backend-container
+docker start ihemp-backend-container
+docker logs ihemp-backend-container
+```
+
+## Deploy e CI/CD
+
+O projeto está publicado no Render utilizando Docker.
+
+O fluxo de deploy funciona assim:
+
+```text
+Alteração no código
+        ↓
+git commit
+        ↓
+git push
+        ↓
+GitHub
+        ↓
+Render detecta a alteração
+        ↓
+Novo build da imagem Docker
+        ↓
+Deploy automático
+```
+
+O serviço está configurado para monitorar a branch `main`, permitindo deploy automático após novos pushes.
 
 ## Testes
 
