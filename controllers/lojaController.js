@@ -1,4 +1,5 @@
 const Loja = require("../models/Loja");
+const Produto = require("../models/Produto");
 
 const criarLoja = async (req, res) => {
     try {
@@ -77,25 +78,44 @@ const atualizarLoja = async (req, res) => {
     }
 };
 
+// Exclui uma loja
 const excluirLoja = async (req, res) => {
-    try {
-        const loja = await Loja.findByIdAndDelete(req.params.id);
+  try {
+    const { id } = req.params;
 
-        if (!loja) {
-            return res.status(404).json({
-                mensagem: "Loja não encontrada"
-            });
-        }
+    // Verifica se a loja existe
+    const loja = await Loja.findById(id);
 
-        res.status(200).json({
-            mensagem: "Loja excluída com sucesso!"
-        });
-    } catch (error) {
-        res.status(500).json({
-            mensagem: "Erro ao excluir loja",
-            erro: error.message
-        });
+    if (!loja) {
+      return res.status(404).json({
+        mensagem: "Loja não encontrada",
+      });
     }
+
+    // Verifica se existem produtos vinculados
+    const produtoVinculado = await Produto.findOne({
+      loja: id,
+    });
+
+    if (produtoVinculado) {
+      return res.status(400).json({
+        mensagem:
+          "Não é possível excluir esta loja porque existem produtos vinculados a ela.",
+      });
+    }
+
+    // Exclui a loja
+    await Loja.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      mensagem: "Loja excluída com sucesso!",
+    });
+  } catch (erro) {
+    return res.status(500).json({
+      mensagem: "Erro ao excluir loja",
+      erro: erro.message,
+    });
+  }
 };
 
 module.exports = {
